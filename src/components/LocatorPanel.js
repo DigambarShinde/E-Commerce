@@ -61,7 +61,7 @@ const LocatorPanel = () => {
             style={{ width: '300px', height: '200px', objectFit: 'cover' }}
           />
           <img
-            src="https://media.istockphoto.com/id/1425250041/photo/fresh-flame-grilled-burgers-in-a-row-at-food-market.webp?b=1&s=612x612&w=0&k=20&c=BVGezMuvUTHeLvwEq2bYJqtRLddF2hKNTd8_I6zsvCA="
+            src="https://store.storeimages.cdn-apple.com/2/store.apple.com/shop/rs-covers/2/dist/media/aos_cover_vibrant.mp4"
             alt="Feature 3"
             style={{ width: '300px', height: '200px', objectFit: 'cover' }}
           />
