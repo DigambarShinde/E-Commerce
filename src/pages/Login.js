@@ -19,10 +19,12 @@ import Slide from "@mui/material/Slide";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+// Snackbar alert component
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+// Theme settings
 const darkTheme = createTheme({
   palette: {
     mode: "dark",
@@ -47,39 +49,50 @@ const center = {
 };
 
 export default function Login() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);  // Snackbar state
   const [remember, setRemember] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const vertical = "top";
   const horizontal = "right";
   const navigate = useNavigate();
-
+  
+  // Handle form submit for login
   const handleSubmit = async (event) => {
-    //setOpen(true);
-    event.preventDefault();
-    console.log(username + "  -  " + password);
-
+    event.preventDefault(); // Prevent the default form submission
+  
+    // Prepare login data
     const loginData = {
-      email: "eve.holt@reqres.in",
-      password: "cityslicka"
+      email: "eve.holt@reqres.in", // Example email (can be dynamic)
+      password: "cityslicka", // Example password (can be dynamic)
     };
-
+  
     try {
-      const response = await axios.post("https://reqres.in/api/login",loginData);
-
+      console.log("Sending request with data:", loginData);
+  
+      // Send POST request to login API
+      const response = await axios.post("https://reqres.in/api/login", loginData);
+      console.log("Response received:", response);
+  
+      // If login is successful (status 200)
       if (response.status === 200) {
+        const token = response.data.token; // Extract the JWT token from the response
         console.log("Login successful:", response.data);
+  
+        // Store JWT token in a secure, HTTP-only cookie
+        // max-age: 3600 seconds (1 hour)
+        document.cookie = `authToken=${token}; path=/; max-age=3600; secure; SameSite=Strict;`;
+  
+        // Navigate to the dashboard after successful login
         navigate("/dashboard");
-      } else {
-        console.error("Login failed:", response.data);
-        setOpen(true);
       }
     } catch (error) {
-      console.error("Error during login:", error);
-      setOpen(true);
+      // If login fails, log the error and show a notification (like a snackbar)
+      console.error("Login failed:", error);
+      setOpen(true); // Assuming setOpen triggers an error notification
     }
   };
+  
 
   const handleClose = (event, reason) => {
     if (reason === "clickaway") {
@@ -94,6 +107,7 @@ export default function Login() {
 
   return (
     <>
+      {/* Snackbar for error message */}
       <Snackbar
         open={open}
         autoHideDuration={3000}
@@ -102,9 +116,11 @@ export default function Login() {
         anchorOrigin={{ vertical, horizontal }}
       >
         <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
-          Failed! Enter correct username and password.
+          Invalid credentials! Please try again.
         </Alert>
       </Snackbar>
+
+      {/* Login form */}
       <div
         style={{
           backgroundImage: `url(${bgimg})`,

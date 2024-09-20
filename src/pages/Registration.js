@@ -20,8 +20,8 @@ import {
 import MuiAlert from "@mui/material/Alert";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { useNavigate } from "react-router-dom";
-import bg from "./img/signin.svg";
 import bgimg from "./img/backimg.jpg";
+import axios from "axios";
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -74,16 +74,17 @@ const styles = {
     color: "#beb4fb",
     cursor: "pointer",
   },
-  uploadInput: {
-    display: "none",
-  },
 };
 
 export default function Register() {
   const [open, setOpen] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [number, setNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
-  const [workingStatus, setWorkingStatus] = useState("");
-  const [experienceYears, setExperienceYears] = useState("");
   const vertical = "top";
   const horizontal = "right";
   const navigate = useNavigate();
@@ -91,8 +92,45 @@ export default function Register() {
   const handleSubmit = async (event) => {
     setOpen(true);
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    // Handle form submission
+
+    // Ensure the passwords match
+    if (password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
+    // Prepare the data to send to the backend
+    const userData = {
+      firstName,
+      lastName,
+      email,
+      number,
+      password,
+      role,
+    };
+
+    try 
+    {
+      // Example of sending a POST request to the backend
+      const response = await axios.post("/api/register", userData);
+
+      if (response.status === 200) 
+      {
+        // Handle successful registration (e.g., navigate to login page)
+        alert("Registration successful!");
+        navigate("/login");
+      }
+      else 
+      {
+        // Handle any other status codes
+        alert("Registration failed. Please try again.");
+      }
+    } 
+    catch (error) 
+    {
+      console.error("Error during registration:", error);
+      alert("An error occurred. Please try again later.");
+    }
   };
 
   const handleClose = (event, reason) => {
@@ -102,7 +140,8 @@ export default function Register() {
     setOpen(false);
   };
 
-  function TransitionLeft(props) {
+  function TransitionLeft(props) 
+  {
     return <Slide {...props} direction="left" />;
   }
 
@@ -116,24 +155,13 @@ export default function Register() {
         anchorOrigin={{ vertical, horizontal }}
       >
         <Alert onClose={handleClose} severity="error" sx={{ width: "100%" }}>
-          Failed! Enter correct username and password.
+          Registration failed! Please check your details.
         </Alert>
       </Snackbar>
       <div style={styles.mainContainer}>
         <Box sx={styles.boxContainer}>
           <Grid container>
-            <Grid item xs={12} sm={6}>
-              <Box
-                style={{
-                  backgroundImage: `url(${bg})`,
-                  backgroundSize: "cover",
-                  margin: "40px 15px",
-                  height: "63vh",
-                  color: "#f5f5f5",
-                }}
-              />
-            </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <Box sx={styles.formContainer}>
                 <ThemeProvider theme={darkTheme}>
                   <Container>
@@ -173,6 +201,42 @@ export default function Register() {
                           />
                         </Grid>
                         <Grid item xs={12}>
+                          <TextField
+                            required
+                            fullWidth
+                            id="number"
+                            label="Phone Number"
+                            name="number"
+                            autoComplete="number"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            required
+                            fullWidth
+                            id="password"
+                            label="Password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            onChange={(e) => setPassword(e.target.value)}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            required
+                            fullWidth
+                            id="confirm-password"
+                            label="Confirm Password"
+                            name="confirm-password"
+                            type="password"
+                            autoComplete="confirm-password"
+                            onChange={(e) =>
+                              setConfirmPassword(e.target.value)
+                            }
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
                           <FormControl fullWidth required>
                             <InputLabel id="role-label">Role</InputLabel>
                             <Select
@@ -182,110 +246,10 @@ export default function Register() {
                               label="Role"
                               onChange={(e) => setRole(e.target.value)}
                             >
-                              <MenuItem value={"Job Seeker"}>
-                                Job Seeker
-                              </MenuItem>
-                              <MenuItem value={"Recruiter"}>
-                                Recruiter
-                              </MenuItem>
+                              <MenuItem value={"USER"}>User</MenuItem>
+                              <MenuItem value={"ADMIN"}>Admin</MenuItem>
                             </Select>
                           </FormControl>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <TextField
-                            required
-                            fullWidth
-                            id="skills"
-                            label="Skills"
-                            name="skills"
-                            autoComplete="skills"
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <TextField
-                            required
-                            fullWidth
-                            id="bio"
-                            label="Bio"
-                            name="bio"
-                            multiline
-                            rows={4}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <FormControl fullWidth required>
-                            <InputLabel id="working-status-label">
-                              Working Status
-                            </InputLabel>
-                            <Select
-                              labelId="working-status-label"
-                              id="working-status"
-                              value={workingStatus}
-                              label="Working Status"
-                              onChange={(e) =>
-                                setWorkingStatus(e.target.value)
-                              }
-                            >
-                              <MenuItem value={"Fresher"}>Fresher</MenuItem>
-                              <MenuItem value={"Experienced"}>
-                                Experienced
-                              </MenuItem>
-                            </Select>
-                          </FormControl>
-                        </Grid>
-                        {workingStatus === "Experienced" && (
-                          <Grid item xs={12}>
-                            <TextField
-                              fullWidth
-                              id="experience"
-                              label="Years of Experience"
-                              name="experience"
-                              type="number"
-                              value={experienceYears}
-                              onChange={(e) =>
-                                setExperienceYears(e.target.value)
-                              }
-                              inputProps={{ min: "0" }}
-                            />
-                          </Grid>
-                        )}
-                        <Grid item xs={12}>
-                          <Tooltip title="Upload your resume (PDF only)">
-                            <Button
-                              variant="contained"
-                              component="label"
-                              fullWidth
-                              size="large"
-                              sx={styles.button}
-                            >
-                              Upload Resume
-                              <input
-                                type="file"
-                                hidden
-                                accept=".pdf"
-                                style={styles.uploadInput}
-                              />
-                            </Button>
-                          </Tooltip>
-                        </Grid>
-                        <Grid item xs={12}>
-                          <Tooltip title="Upload your profile picture (JPEG/PNG)">
-                            <Button
-                              variant="contained"
-                              component="label"
-                              fullWidth
-                              size="large"
-                              sx={styles.button}
-                            >
-                              Upload Image
-                              <input
-                                type="file"
-                                hidden
-                                accept=".jpg,.jpeg,.png"
-                                style={styles.uploadInput}
-                              />
-                            </Button>
-                          </Tooltip>
                         </Grid>
                         <Grid item xs={12}>
                           <Button
@@ -304,7 +268,7 @@ export default function Register() {
                             align="center"
                             sx={{ mt: 2 }}
                           >
-                            Already have an Account?{" "}
+                            Already have an account?{" "}
                             <span
                               style={styles.linkText}
                               onClick={() => navigate("/login")}
